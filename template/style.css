@@ -1,5 +1,169 @@
 @import url("https://use.typekit.net/pnq5gyb.css");
 
+:root {
+  --surface-1: #fcfcfb;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid-line: #e1e0d9;
+  --series-1: #2a78d6;
+  --series-2: #1baf7a;
+  --series-3: #eda100;
+  --series-4: #008300;
+  --series-5: #4a3aa7;
+  --series-6: #e34948;
+  --series-7: #e87ba4;
+}
+#hero-value, #hero-value-2 {
+  font-size: 2.6rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-top: 8px;
+}
+.left-top p, .left-bottom p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-top: 6px;
+}
+.left-top h3, .left-bottom h3 {
+  color: var(--text-secondary);
+  font-weight: 400;
+  line-height: normal;
+}
+
+.right-top, .right-bottom {
+  padding: 16px 20px;
+}
+.right-top h3, .right-bottom h3 {
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-size: 1.2em;
+}
+
+#chart-container {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: 380px;
+  margin: 0;
+}
+.axis text {
+  fill: var(--text-muted);
+  font-family: "effra", sans-serif;
+  font-size: 11px;
+}
+.axis .domain, .axis .tick line {
+  stroke: var(--grid-line);
+}
+.grid line {
+  stroke: var(--grid-line);
+  stroke-width: 1;
+}
+.grid .domain { display: none; }
+.crosshair {
+  stroke: var(--text-muted);
+  stroke-width: 1;
+  stroke-dasharray: 3,3;
+}
+.end-label {
+  fill: var(--text-secondary);
+  font-family: "effra", sans-serif;
+  font-size: 11px;
+}
+
+.chart-tooltip {
+  position: absolute;
+  background: var(--surface-1);
+  border: 1px solid var(--grid-line);
+  border-radius: 6px;
+  padding: 8px 10px;
+  pointer-events: none;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  min-width: 180px;
+}
+.tooltip-year {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 0;
+}
+.line-key {
+  width: 10px;
+  height: 2px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.tooltip-label {
+  color: var(--text-secondary);
+  flex: 1;
+}
+.tooltip-value {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+#legend-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 8px;
+  padding: 0 4px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.pop-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+.pop-table th {
+  text-align: left;
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--grid-line);
+}
+.pop-table td {
+  padding: 6px 8px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--grid-line);
+}
+.pop-table td.num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.pop-table .swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-right: 6px;
+}
+
 
 
 
@@ -458,14 +622,6 @@ grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         font-family: "Roboto", sans-serif;
     line-height: normal;
     width: 80%;
-}
-#chart-container { /* El div que envuelve tus gráficos */
-    opacity: 0;
-    transition: opacity 0.5s ease-in;
-}
-
-.charts-ready #chart-container {
-    opacity: 1;
 }
 .right {
     

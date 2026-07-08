@@ -1,289 +1,192 @@
-const API_KEY = "QjDqiYcwNRvCwZLiIDj50O-fvzAyGcadaOG091tD52t0hul3TA1b5ZXLKoNCe2NI";
-const charts = [
-    { id: "28311711", container: "#chart-0", visual: null, options: null },
-    { id: "28311773", container: "#chart-1", visual: null, options: null },
-    { id: "28332762", container: "#chart-2", visual: null, options: null },
-    { id: "28363053", container: "#chart-3", visual: null, options: null },
-
+const REGIONS = [
+  { key: "East Asia Pacific", color: "var(--series-1)" },
+  { key: "South Asia", color: "var(--series-2)" },
+  { key: "Sub-Saharan Africa", color: "var(--series-3)" },
+  { key: "Europe and Central Asia", color: "var(--series-4)" },
+  { key: "Latin America and Caribbean", color: "var(--series-5)" },
+  { key: "Middle East and North Africa", color: "var(--series-6)" },
+  { key: "North America", color: "var(--series-7)" },
 ];
 
-let raw_line_data = [];
-let raw_waterfall_data = [];
-let raw_table_data = [];
-let raw_table2_data = [];
-
-
-
-
-const line_csv_promise = d3.csv("data_line.csv", d => {
-    const clean = {};
-    for (let key in d) clean[key.trim()] = d[key] ? d[key].trim() : "";
-    clean.Petrol = +clean.Petrol || 0;
-    clean.Diesel = +clean.Diesel || 0;
-    return clean;
-});
-
-const waterfall_csv_promise = d3.csv("data_waterfall.csv", d => {
-    const clean = {};
-    for (let key in d) clean[key.trim()] = d[key] ? d[key].trim() : "";
-    clean.Value = clean.Value === "" ? "" : parseFloat(clean.Value);
-    return clean;
-});
-
-const table_csv_promise = d3.dsv("\t", "data_table.tsv", d => {
-    const clean = {};
-    for (let key in d) {
-        const cleanKey = key.trim();
-        let value = d[key] ? d[key].trim() : "";
-        clean[cleanKey] = value;
-    }
-    return clean;
-});
-const table_2_csv_promise = d3.dsv("\t", "data_table_refineries.tsv", d => {
-    const clean = {};
-    for (let key in d) {
-        const cleanKey2 = key.trim();
-        let value = d[key] ? d[key].trim() : ""
-        clean[cleanKey2] = value;
-    }
-    return clean;
-});
-
-const chart_promises = charts.map(c => d3.json(`https://public.flourish.studio/visualisation/${c.id}/visualisation-object.json`));
-
-function filterByCountry(selectedCountry) {
-    if (!selectedCountry || !raw_table_data[0]) return;
-    if (!selectedCountry || !raw_table2_data[0]) return;
-
-    const searchCountry = selectedCountry.trim();
-
-    const colNames = Object.keys(raw_table_data[0]);
-    const countryKey = colNames.find(k => k.toLowerCase().trim() === "country") || "Country";
-
-
-
-    const filteredTable = raw_table_data.filter(d => (d[countryKey] || "").trim() === searchCountry);
-
-
-    const colNames2 = Object.keys(raw_table2_data[0]);
-
-    const countryKey2 = colNames2.find(k => k.toLowerCase().trim() === "country") || "Country";
-    const filteredTable2 = raw_table2_data.filter(d => (d[countryKey2] || "").trim() === searchCountry);
-
-    const filteredLine = raw_line_data.filter(d => (d.Country || "").trim() === searchCountry);
-    const filteredWaterfall = raw_waterfall_data.filter(d => {
-        const country = (d.Country || d.country || "").trim();
-        const label = (d.Label || d.label || "").trim().toLowerCase();
-        return country === searchCountry || label === "label";
-    });
-
-    if (charts[0] && charts[0].visual) {
-        charts[0].options.data = { data: filteredLine };
-        charts[0].visual.update(charts[0].options);
-    }
-
-    if (charts[1] && charts[1].visual) {
-        charts[1].options.data = { data: filteredWaterfall };
-        charts[1].options.state.waterfall_total_mode = "absolute";
-        charts[1].visual.update(charts[1].options);
-    }
-
-    if (charts[2] && charts[2].visual) {
-        const tableDataForDisplay = filteredTable.map(row => {
-            const { Country, country, ...rest } = row;
-            return rest;
-        });
-
-        const displayColumns = Object.keys(tableDataForDisplay[0] || {});
-
-        charts[2].visual.update({
-            data: {
-                rows: tableDataForDisplay
-            },
-            bindings: {
-                rows: { columns: displayColumns }
-            },
-            state: {
-
-                "header_font_size": 0,
-
-                "layout": {
-                    "background_color_enabled": false,
-                    "footer_logo_enabled": false,
-                    "footer_logo_height": 0,
-                    "footer_logo_src": "",
-                    "header_align": "center",
-                    "header_logo_align": "outside",
-                    "header_logo_enabled": false,
-                    "header_logo_height": 0,
-                    "header_logo_margin_left": 1,
-                    "header_logo_margin_top": 0,
-                    "margin_bottom": 0,
-                    "margin_left": 0,
-                    "margin_right": 0,
-                    "margin_top": 0,
-                    "max_width": 450,
-
-                    "header_logo_position_inside": "top",
-                    "header_logo_src": "",
-                    "title": "<div class=\"title_header\"><h3>Upstream excess profits: crude oil production</h3>\n</div>\n<style>\n.title_header h3 {\npadding:15px;\n  color: #FF8754; \n  background-color: #FF875420;\n    border-radius: 10px;\n    font-size: 0.8em;\nfont-weight:700;\nline-height:1;\n}\n</style>\n",
-                    "title_line_height": 0,
-                    "title_size": "custom",
-                    "title_size_custom": 1.5,
-                    "title_space_above": "custom",
-                    "title_space_above_custom": 0,
-                    "title_styling": true,
-                    "title_weight": "normal",
-                },
-                "markdown_enabled": false,
-
-                "mobile": {
-                    "cell_font_size": "custom",
-                    "pagination_amount": 4,
-                    "view": false,
-                },
-            }
-        });
-
-    }
-    if (charts[3] && charts[3].visual) {
-        const tableDataForDisplay2 = filteredTable2.map(row => {
-            const { Country, country, ...rest } = row;
-            return rest;
-        });
-
-        const displayColumns2 = Object.keys(tableDataForDisplay2[0] || {});
-
-        charts[3].visual.update({
-            data: {
-                rows: tableDataForDisplay2
-            },
-            bindings: {
-                rows: { columns: displayColumns2 }
-            },
-            state: {
-
-                "header_font_size": 0,
-
-                "layout": {
-                    "background_color_enabled": false,
-                    "footer_logo_enabled": false,
-                    "footer_logo_height": 0,
-                    "footer_logo_src": "",
-                    "header_align": "center",
-                    "header_logo_align": "outside",
-                    "header_logo_enabled": false,
-                    "header_logo_height": 0,
-                    "header_logo_margin_left": 1,
-                    "header_logo_margin_top": 0,
-                    "margin_bottom": 0,
-                    "margin_left": 0,
-                    "margin_right": 0,
-                    "margin_top": 0,
-                    "max_width": 450,
-
-                    "header_logo_position_inside": "top",
-                    "header_logo_src": "",
-                    "title": "<div class=\"title_header\"><h3>Downstream excess profits: refiners and distributors</h3>\n</div>\n<style>\n.title_header h3 {\npadding:15px;\n color: #C2447A;\n   background-color: #C2447A20;\n    border-radius: 10px;\n    font-size: 0.8em;\nfont-weight:700;\nline-height:1;\n}\n</style>\n",
-                    "title_line_height": 0,
-                    "title_size": "custom",
-                    "title_size_custom": 1.5,
-                    "title_space_above": "custom",
-                    "title_space_above_custom": 0,
-                    "title_styling": true,
-                    "title_weight": "normal",
-                },
-                "markdown_enabled": false,
-
-                "mobile": {
-                    "cell_font_size": "custom",
-                    "pagination_amount": 4,
-                    "view": false,
-                },
-            }
-        });
-
-    }
-}
 function hideLoader() {
-    const loader = document.getElementById('loader-wrapper');
-    if (!loader) return;
-
-    loader.classList.add('fade-out');
-    setTimeout(() => {
-        loader.style.display = 'none';
-    }, 600); 
+  const loader = document.getElementById("loader-wrapper");
+  if (!loader) return;
+  loader.classList.add("fade-out");
+  setTimeout(() => { loader.style.display = "none"; }, 600);
 }
 
-function buildCharts(base_charts) {
-    base_charts.forEach((base, i) => {
-        
-        const chart = charts[i];
-        chart.options = base;
-        chart.options.api_key = API_KEY;
-        chart.options.container = chart.container;
-
-        if (i === 0) chart.options.data = { data: raw_line_data };
-        if (i === 1) {
-            chart.options.data = { data: raw_waterfall_data };
-            chart.options.state = chart.options.state || {};
-            chart.options.state.chart_type = "column_waterfall";
-            chart.options.state.waterfall_total_column = "Label";
-            chart.options.state.waterfall_total_value = "X";
-            chart.options.state.waterfall_total_mode = "absolute";
-            chart.options.state.waterfall_show_total = true;
-        }
-
-        if (i === 2) {
-            chart.options.data = { rows: raw_table_data };
-            chart.options.state = chart.options.state || {};
-
-        }
-        if (i === 3) {
-            chart.options.data = { rows: raw_table2_data };
-            chart.options.state = chart.options.state || {};
-
-        }
-
-        try {
-            chart.visual = new Flourish.Live(chart.options);
-        } catch (e) {
-            console.error("Error en gráfico " + i, e);
-        }
-    });
-    setTimeout(() => {
-        hideLoader();
-    }, 1200);
+function formatCompact(n) {
+  return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(n);
 }
 
-function buildCountryDropdown(data) {
-    const uniqueCountries = Array.from(new Set(data.map(d => (d.Country || d.Country || "").trim()))).filter(Boolean);
+function renderHero(data) {
+  const first = data[0];
+  const last = data[data.length - 1];
 
-    const parent = d3.select("#controls").append("div").attr("class", "country-control");
+  const worldFirst = d3.sum(REGIONS, r => first[r.key]);
+  const worldLast = d3.sum(REGIONS, r => last[r.key]);
+  const growth = worldLast / worldFirst;
 
-    const select = parent.append("select");
-    select.selectAll("option").data(uniqueCountries).join("option").attr("value", d => d).html(d => d);
+  document.getElementById("hero-value").textContent = formatCompact(worldLast);
+  document.getElementById("hero-sub").textContent =
+    `${growth.toFixed(1)}x the ${first.Year} total across these seven regions.`;
 
-    select.on("change", function () { filterByCountry(this.value); });
+  const growthByRegion = REGIONS.map(r => ({
+    key: r.key,
+    growth: last[r.key] / first[r.key],
+  })).sort((a, b) => d3.descending(a.growth, b.growth));
+  const top = growthByRegion[0];
 
-    return uniqueCountries[0];
+  document.getElementById("hero-value-2").textContent = top.key;
+  document.getElementById("hero-sub-2").textContent =
+    `Population grew ${top.growth.toFixed(1)}x from ${first.Year} to ${last.Year}.`;
 }
 
-function main(lineData, waterfallData, tableData, tableData2, base_charts) {
-    raw_line_data = lineData;
-    raw_waterfall_data = waterfallData;
-    raw_table_data = tableData;
-    raw_table2_data = tableData2;
+function renderTable(data) {
+  const last = data[data.length - 1];
+  const worldLast = d3.sum(REGIONS, r => last[r.key]);
 
-    buildCharts(base_charts);
-    const firstCountry = buildCountryDropdown(waterfallData);
+  const rows = REGIONS.map(r => ({
+    key: r.key,
+    color: r.color,
+    value: last[r.key],
+    share: last[r.key] / worldLast,
+  })).sort((a, b) => d3.descending(a.value, b.value));
 
-    setTimeout(() => {
-        filterByCountry(firstCountry);
-    }, 400);
+  const container = d3.select("#table-container");
+  const table = container.append("table").attr("class", "pop-table");
+  const thead = table.append("thead").append("tr");
+  thead.append("th").text("Region");
+  thead.append("th").text("Population");
+  thead.append("th").text("Share");
+
+  const tbody = table.append("tbody");
+  const tr = tbody.selectAll("tr").data(rows).join("tr");
+  const th = tr.append("td");
+  th.append("span").attr("class", "swatch").style("background-color", d => d.color);
+  th.append("span").text(d => d.key);
+  tr.append("td").attr("class", "num").text(d => formatCompact(d.value));
+  tr.append("td").attr("class", "num").text(d => d3.format(".1%")(d.share));
 }
 
-Promise.all([line_csv_promise, waterfall_csv_promise, table_csv_promise, table_2_csv_promise, ...chart_promises])
-    .then(res => {
-        main(res[0], res[1], res[2], res[3], res.slice(4));
+function renderLegend(regions) {
+  const legend = d3.select("#legend-container");
+  const item = legend.selectAll(".legend-item").data(regions).join("div").attr("class", "legend-item");
+  item.append("span").attr("class", "legend-swatch").style("background-color", d => d.color);
+  item.append("span").attr("class", "legend-label").text(d => d.key);
+}
+
+function renderChart(data) {
+  const container = document.getElementById("chart-container");
+  const width = container.clientWidth || 600;
+  const height = 380;
+  const margin = { top: 16, right: 130, bottom: 28, left: 48 };
+
+  const svg = d3.select(container).append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet");
+
+  const x = d3.scaleLinear()
+    .domain(d3.extent(data, d => d.Year))
+    .range([margin.left, width - margin.right]);
+
+  const maxY = d3.max(data, d => d3.max(REGIONS, r => d[r.key]));
+  const y = d3.scaleLinear()
+    .domain([0, maxY]).nice()
+    .range([height - margin.bottom, margin.top]);
+
+  // gridlines
+  svg.append("g")
+    .attr("class", "grid")
+    .call(d3.axisLeft(y).ticks(5).tickSize(-(width - margin.left - margin.right)).tickFormat(""))
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(g => g.select(".domain").remove());
+
+  svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x).ticks(6).tickFormat(d3.format("d")));
+
+  svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).ticks(5).tickFormat(formatCompact));
+
+  REGIONS.forEach(r => {
+    const path = d3.line()
+      .x(d => x(d.Year))
+      .y(d => y(d[r.key]));
+
+    svg.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", r.color)
+      .attr("stroke-width", 2)
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+      .attr("d", path);
+  });
+
+  // direct end-labels for the top 3 series by final value (selective labeling)
+  const last = data[data.length - 1];
+  const topThree = [...REGIONS].sort((a, b) => d3.descending(last[a.key], last[b.key])).slice(0, 3);
+  topThree.forEach(r => {
+    svg.append("circle")
+      .attr("cx", x(last.Year))
+      .attr("cy", y(last[r.key]))
+      .attr("r", 4)
+      .attr("fill", r.color)
+      .attr("stroke", "var(--surface-1)")
+      .attr("stroke-width", 2);
+
+    svg.append("text")
+      .attr("x", x(last.Year) + 8)
+      .attr("y", y(last[r.key]))
+      .attr("dy", "0.32em")
+      .attr("class", "end-label")
+      .text(r.key.replace(" and Central Asia", "").replace(" Pacific", ""));
+  });
+
+  // hover crosshair + tooltip
+  const focusLine = svg.append("line")
+    .attr("class", "crosshair")
+    .attr("y1", margin.top)
+    .attr("y2", height - margin.bottom)
+    .style("display", "none");
+
+  const tooltip = d3.select(container).append("div").attr("class", "chart-tooltip").style("display", "none");
+
+  svg.append("rect")
+    .attr("x", margin.left)
+    .attr("y", margin.top)
+    .attr("width", width - margin.left - margin.right)
+    .attr("height", height - margin.top - margin.bottom)
+    .attr("fill", "transparent")
+    .on("mousemove", function (event) {
+      const [mx] = d3.pointer(event);
+      const year = Math.round(x.invert(mx));
+      const point = data.reduce((a, b) => Math.abs(b.Year - year) < Math.abs(a.Year - year) ? b : a);
+
+      focusLine.attr("x1", x(point.Year)).attr("x2", x(point.Year)).style("display", null);
+
+      const rows = REGIONS.map(r => `<div class="tooltip-row"><span class="line-key" style="background:${r.color}"></span><span class="tooltip-label">${r.key}</span><span class="tooltip-value">${formatCompact(point[r.key])}</span></div>`).join("");
+      tooltip.html(`<div class="tooltip-year">${point.Year}</div>${rows}`)
+        .style("display", null)
+        .style("left", `${x(point.Year) + 12}px`)
+        .style("top", `${margin.top}px`);
     })
+    .on("mouseleave", function () {
+      focusLine.style("display", "none");
+      tooltip.style("display", "none");
+    });
+}
+
+function main(data) {
+  renderHero(data);
+  renderTable(data);
+  renderLegend(REGIONS);
+  renderChart(data);
+  hideLoader();
+}
+
+d3.csv("population.csv", d3.autoType).then(main);
