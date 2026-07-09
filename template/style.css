@@ -82,17 +82,7 @@
 }
 
 .flourish-chart-wrap {
-  position: relative;
   width: 100%;
-}
-.chart-corner-logo {
-  position: absolute;
-  bottom: 30px;
-  right: 10px;
-  height: 16px;
-  opacity: 0.9;
-  pointer-events: none;
-  z-index: 2;
 }
 
 .data-table {
