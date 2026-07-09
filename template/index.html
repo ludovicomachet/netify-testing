@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="https://use.typekit.net/pnq5gyb.css">
   <script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 
 <body id="main-code">
@@ -17,6 +17,7 @@
   <div class="main-content">
 
     <div class="page-title">
+      <img src="logo.webp" alt="Transport & Environment" class="te-logo">
       <h1>Global population by region, 1900&ndash;2020</h1>
       <p>Population has grown more than four-fold since 1900 across these seven World Bank regions, with the fastest growth concentrated in East Asia Pacific and South Asia.</p>
     </div>
@@ -24,33 +25,45 @@
     <div id="dataContainer">
       <div class="wrapper__25_number">
         <div class="left-top box">
-          <h3>World total, 2020</h3>
+          <h3 class="chart-title neutral">World total, 2020</h3>
           <div id="hero-value"></div>
           <p id="hero-sub"></p>
         </div>
         <div class="left-bottom box">
-          <h3>Fastest-growing region</h3>
+          <h3 class="chart-title neutral">Fastest-growing region</h3>
           <div id="hero-value-2"></div>
           <p id="hero-sub-2"></p>
         </div>
       </div>
       <div class="right">
         <div class="right-top">
-          <h3>Latest snapshot (2020)</h3>
+          <h3 class="chart-title accent-blue">Latest snapshot (2020)</h3>
           <div id="table-container"></div>
         </div>
         <div class="right-bottom">
-          <h3>Population over time</h3>
+          <h3 class="chart-title accent-blue">Population over time</h3>
           <div id="chart-container"></div>
           <div id="legend-container"></div>
         </div>
       </div>
+
+      <div class="full-width box">
+        <h3 class="chart-title accent-violet">Job roles by sector</h3>
+        <p class="chart-subtitle">Headcount by role across four sectors. Use the dropdown to switch country.</p>
+        <div id="controls-jobs"></div>
+        <div class="jobs-layout">
+          <div id="bar-chart-container"></div>
+          <div id="jobs-table-container"></div>
+        </div>
+        <div id="jobs-legend-container"></div>
+      </div>
+
       <div class="source">
-        <p>Source: World Bank regional population data, 1900&ndash;2020 (<code>population.csv</code>).</p>
+        <p>Sources: World Bank regional population data, 1900&ndash;2020 (<code>population.csv</code>); job-role headcount survey (<code>job_roles.csv</code>).</p>
       </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
 
   </div>
 </body>

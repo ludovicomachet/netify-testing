@@ -54,7 +54,7 @@ function renderTable(data) {
   })).sort((a, b) => d3.descending(a.value, b.value));
 
   const container = d3.select("#table-container");
-  const table = container.append("table").attr("class", "pop-table");
+  const table = container.append("table").attr("class", "data-table");
   const thead = table.append("thead").append("tr");
   thead.append("th").text("Region");
   thead.append("th").text("Population");
@@ -181,12 +181,161 @@ function renderChart(data) {
     });
 }
 
-function main(data) {
-  renderHero(data);
-  renderTable(data);
+const ROLES = [
+  { key: "Analyst", color: "var(--series-1)" },
+  { key: "Journalist", color: "var(--series-2)" },
+  { key: "Marketing", color: "var(--series-3)" },
+  { key: "Sales", color: "var(--series-4)" },
+];
+
+function renderJobsLegend() {
+  const legend = d3.select("#jobs-legend-container");
+  const item = legend.selectAll(".legend-item").data(ROLES).join("div").attr("class", "legend-item");
+  item.append("span").attr("class", "legend-swatch").style("background-color", d => d.color);
+  item.append("span").attr("class", "legend-label").text(d => d.key);
+}
+
+function renderJobsTable(rows) {
+  const container = d3.select("#jobs-table-container");
+  container.selectAll("*").remove();
+
+  const table = container.append("table").attr("class", "data-table");
+  const thead = table.append("thead").append("tr");
+  thead.append("th").text("Sector");
+  ROLES.forEach(r => thead.append("th").text(r.key).attr("class", "num"));
+
+  const tbody = table.append("tbody");
+  const tr = tbody.selectAll("tr").data(rows).join("tr");
+  tr.append("td").text(d => d.Label);
+  ROLES.forEach(r => {
+    tr.append("td").attr("class", "num").text(d => d[r.key]);
+  });
+}
+
+function renderBarChart(rows, maxValue) {
+  const container = document.getElementById("bar-chart-container");
+  container.querySelectorAll("svg, .chart-tooltip").forEach(el => el.remove());
+
+  const width = container.clientWidth || 600;
+  const height = 320;
+  const margin = { top: 16, right: 16, bottom: 28, left: 44 };
+
+  const svg = d3.select(container).append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet");
+
+  const x0 = d3.scaleBand()
+    .domain(rows.map(d => d.Label))
+    .range([margin.left, width - margin.right])
+    .paddingInner(0.3);
+
+  const x1 = d3.scaleBand()
+    .domain(ROLES.map(r => r.key))
+    .range([0, x0.bandwidth()])
+    .padding(0.08);
+
+  const barWidth = Math.min(x1.bandwidth(), 24);
+  const barOffset = (x1.bandwidth() - barWidth) / 2;
+
+  const y = d3.scaleLinear()
+    .domain([0, maxValue]).nice()
+    .range([height - margin.bottom, margin.top]);
+
+  svg.append("g")
+    .attr("class", "grid")
+    .call(d3.axisLeft(y).ticks(5).tickSize(-(width - margin.left - margin.right)).tickFormat(""))
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(g => g.select(".domain").remove());
+
+  svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", `translate(0,${height - margin.bottom})`)
+    .call(d3.axisBottom(x0));
+
+  svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).ticks(5));
+
+  const tooltip = d3.select(container).append("div").attr("class", "chart-tooltip").style("display", "none");
+
+  const sectorGroup = svg.append("g")
+    .selectAll("g")
+    .data(rows)
+    .join("g")
+    .attr("transform", d => `translate(${x0(d.Label)},0)`);
+
+  ROLES.forEach(role => {
+    sectorGroup.append("rect")
+      .attr("class", "bar")
+      .attr("x", x1(role.key) + barOffset)
+      .attr("width", barWidth)
+      .attr("y", d => y(d[role.key]))
+      .attr("height", d => y(0) - y(d[role.key]))
+      .attr("rx", 4)
+      .attr("fill", role.color);
+
+    sectorGroup.append("rect")
+      .attr("class", "bar-hit")
+      .attr("x", x1(role.key) + barOffset - 4)
+      .attr("width", barWidth + 8)
+      .attr("y", margin.top)
+      .attr("height", height - margin.bottom - margin.top)
+      .on("pointermove focus", function (event, d) {
+        const value = d[role.key];
+        const barX = x0(d.Label) + x1(role.key) + x1.bandwidth() / 2;
+
+        tooltip.selectAll("*").remove();
+        const year = tooltip.append("div").attr("class", "tooltip-year");
+        year.append("span").text(d.Label);
+        const row = tooltip.append("div").attr("class", "tooltip-row");
+        row.append("span").attr("class", "line-key").style("background", role.color);
+        row.append("span").attr("class", "tooltip-label").text(role.key);
+        row.append("span").attr("class", "tooltip-value").text(value);
+
+        tooltip.style("display", null)
+          .style("left", `${barX + 10}px`)
+          .style("top", `${y(value) - 10}px`);
+      })
+      .on("mouseleave blur", function () {
+        tooltip.style("display", "none");
+      });
+  });
+}
+
+function buildCountryDropdown(rows, onChange) {
+  const countries = Array.from(new Set(rows.map(d => d.Country)));
+  const parent = d3.select("#controls-jobs").append("div").attr("class", "country-control");
+  const select = parent.append("select");
+  select.selectAll("option").data(countries).join("option").attr("value", d => d).text(d => d);
+  select.on("change", function () { onChange(this.value); });
+  return countries[0];
+}
+
+function renderJobsChart(data) {
+  const maxValue = d3.max(data, d => d3.max(ROLES, r => d[r.key]));
+
+  function update(country) {
+    const rows = data.filter(d => d.Country === country);
+    renderBarChart(rows, maxValue);
+    renderJobsTable(rows);
+  }
+
+  const firstCountry = buildCountryDropdown(data, update);
+  renderJobsLegend();
+  update(firstCountry);
+}
+
+function main(popData, jobsData) {
+  renderHero(popData);
+  renderTable(popData);
   renderLegend(REGIONS);
-  renderChart(data);
+  renderChart(popData);
+  renderJobsChart(jobsData);
   hideLoader();
 }
 
-d3.csv("population.csv", d3.autoType).then(main);
+Promise.all([
+  d3.csv("population.csv", d3.autoType),
+  d3.csv("job_roles.csv", d3.autoType),
+]).then(([popData, jobsData]) => main(popData, jobsData));
