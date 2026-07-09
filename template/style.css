@@ -87,94 +87,18 @@
   overflow-x: auto;
 }
 
-#chart-container {
+.flourish-chart-wrap {
   position: relative;
   width: 100%;
-  max-width: 100%;
-  height: 380px;
-  margin: 0;
 }
-.axis text {
-  fill: var(--text-muted);
-  font-family: "effra", sans-serif;
-  font-size: 11px;
-}
-.axis .domain, .axis .tick line {
-  stroke: var(--grid-line);
-}
-.grid line {
-  stroke: var(--grid-line);
-  stroke-width: 1;
-}
-.grid .domain { display: none; }
-.crosshair {
-  stroke: var(--text-muted);
-  stroke-width: 1;
-  stroke-dasharray: 3,3;
-}
-.end-label {
-  fill: var(--text-secondary);
-  font-family: "effra", sans-serif;
-  font-size: 11px;
-}
-
-.chart-tooltip {
+.chart-corner-logo {
   position: absolute;
-  background: var(--surface-1);
-  border: 1px solid var(--grid-line);
-  border-radius: 6px;
-  padding: 8px 10px;
+  bottom: 30px;
+  right: 10px;
+  height: 16px;
+  opacity: 0.9;
   pointer-events: none;
-  font-size: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  min-width: 180px;
-}
-.tooltip-year {
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-.tooltip-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 1px 0;
-}
-.line-key {
-  width: 10px;
-  height: 2px;
-  display: inline-block;
-  flex-shrink: 0;
-}
-.tooltip-label {
-  color: var(--text-secondary);
-  flex: 1;
-}
-.tooltip-value {
-  color: var(--text-primary);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-#legend-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 8px;
-  padding: 0 4px;
-}
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-.legend-swatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  display: inline-block;
+  z-index: 2;
 }
 
 .data-table {
@@ -209,43 +133,6 @@
   display: inline-block;
   margin-right: 6px;
 }
-
-#controls-jobs {
-  margin: 10px 0 4px 0;
-}
-#controls-jobs select {
-  border-radius: 50px;
-  border: 1px solid #4a3aa7;
-  background: #fff;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  padding: 6px 36px 6px 14px;
-  appearance: none;
-  font-family: "effra", sans-serif;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='%234a3aa7' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-size: 18px;
-  background-position: right 10px center;
-  background-repeat: no-repeat;
-  cursor: pointer;
-}
-
-#bar-chart-container {
-  position: relative;
-  width: 100%;
-  height: 320px;
-}
-.bar {
-  cursor: pointer;
-}
-.bar:hover, .bar.hovered {
-  filter: brightness(0.9);
-}
-.bar-hit {
-  fill: transparent;
-}
-
-
-
 
 
 body {
